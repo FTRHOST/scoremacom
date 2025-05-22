@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Papan Skor (Online)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="scoreboard-container">
+        <div id="displayTeamAName" class="display-text display-team-a-name">LOADING...</div>
+        <div id="displayTeamARoundScore" class="display-text display-team-a-round-score">0</div>
+        <div id="displayTeamAScore1" class="display-text display-score display-team-a-score1">0</div>
+        <div id="displayTeamAScore2" class="display-text display-score display-team-a-score2">0</div>
+        <div id="displayTeamAScore3" class="display-text display-score display-team-a-score3">0</div>
+
+        <div id="displayTeamBName" class="display-text display-team-b-name">LOADING...</div>
+        <div id="displayTeamBRoundScore" class="display-text display-team-b-round-score">0</div>
+        <div id="displayTeamBScore1" class="display-text display-score display-team-b-score1">0</div>
+        <div id="displayTeamBScore2" class="display-text display-score display-team-b-score2">0</div>
+        <div id="displayTeamBScore3" class="display-text display-score display-team-b-score3">0</div>
+
+        <div id="displayRoundTitle" class="display-text display-round-title">LOADING...</div>
+    </div>
+    <div id="wsStatus">Connecting...</div>
+
+
+    <script>
+        const WS_URL = 'https://3000-firebase-scoreboard-1747902523050.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev/api/scoreboard'; // URL backend server
+        let socket;
+        const displayElements = [ // Hanya ID display yang dibutuhkan di sini
+            { displayId: 'displayTeamAName', dataKey: 'teamANameInput' },
+            { displayId: 'displayTeamBName', dataKey: 'teamBNameInput' },
+            { displayId: 'displayRoundTitle', dataKey: 'roundTitleInput' },
+            { displayId: 'displayTeamAScore1', dataKey: 'teamAScore1Input' },
+            { displayId: 'displayTeamAScore2', dataKey: 'teamAScore2Input' },
+            { displayId: 'displayTeamAScore3', dataKey: 'teamAScore3Input' },
+            { displayId: 'displayTeamARoundScore', dataKey: 'teamARoundScoreInput' },
+            { displayId: 'displayTeamBScore1', dataKey: 'teamBScore1Input' },
+            { displayId: 'displayTeamBScore2', dataKey: 'teamBScore2Input' },
+            { displayId: 'displayTeamBScore3', dataKey: 'teamBScore3Input' },
+            { displayId: 'displayTeamBRoundScore', dataKey: 'teamBRoundScoreInput' },
+        ];
+        const wsStatusEl = document.getElementById('wsStatus');
+
+        function updateAllDisplays(data) {
+            displayElements.forEach(item => {
+                const el = document.getElementById(item.displayId);
+                if (el && data.hasOwnProperty(item.dataKey)) {
+                    el.textContent = data[item.dataKey];
+                } else if (el) {
+                    el.textContent = (item.dataKey.toLowerCase().includes('name') || item.dataKey.toLowerCase().includes('title')) ? "N/A" : "0"; // Default display
+                }
+            });
+        }
+
+        function connectWebSocketDisplay() {
+            socket = new WebSocket(WS_URL);
+            wsStatusEl.textContent = 'Connecting to WebSocket...';
+
+            socket.onopen = () => {
+                wsStatusEl.textContent = 'Connected to WebSocket. Waiting for data...';
+                // Server akan mengirim initialData otomatis
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'initialData' || message.type === 'scoreboardUpdate') {
+                        updateAllDisplays(message.payload);
+                        wsStatusEl.textContent = 'Scoreboard Updated!';
+                         setTimeout(() => wsStatusEl.textContent = 'Live', 2000);
+                    }
+                } catch (e) {
+                    console.error('Error parsing message from server:', e);
+                    wsStatusEl.textContent = 'Error receiving data.';
+                }
+            };
+
+            socket.onclose = () => {
+                wsStatusEl.textContent = 'WebSocket Disconnected. Reconnecting in 5s...';
+                setTimeout(connectWebSocketDisplay, 5000);
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket Error:', error);
+                wsStatusEl.textContent = 'WebSocket Connection Error.';
+            };
+        }
+        document.addEventListener('DOMContentLoaded', connectWebSocketDisplay);
+    </script>
+
+</body>
+</html>

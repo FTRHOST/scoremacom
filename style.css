@@ -1,0 +1,136 @@
+ /* ... CSS Anda tetap sama ... */
+ body {
+    background-color: #00FF00; /* Green screen */
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333; /* Warna teks default untuk kontrol */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.scoreboard-container {
+    position: relative;
+    width: 1920px; /* SESUAIKAN: Lebar gambar banner Anda */
+    height: 500px;  /* SESUAIKAN: Tinggi gambar banner Anda */
+    background-image: url('images/uploads/scoreboard_banner.png'); /* PASTIKAN PATH BENAR */
+    background-size: contain; 
+    background-repeat: no-repeat;
+    margin-bottom: 30px;
+}
+
+.display-text {
+    position: absolute;
+    font-family: 'Arial Black', Gadget, sans-serif;
+    color: #FFFFFF;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.display-team-a-name { top: 141px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
+.display-team-b-name { top: 269px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
+.display-team-a-round-score { top: 140px; left: 1076px; width: 80px; font-size: 60px; }
+.display-team-b-round-score { top: 262px; left: 1077px; width: 80px; font-size: 60px; }
+.display-score { font-size: 70px; width: 130px; }
+.display-team-a-score1 { top: 133px; left: 1162px; }
+.display-team-a-score2 { top: 133px; left: 1304px; }
+.display-team-a-score3 { top: 133px; left: 1441px; }
+.display-team-b-score1 { top: 256px; left: 1162px; }
+.display-team-b-score2 { top: 256px; left: 1305px; }
+.display-team-b-score3 { top: 257px; left: 1443px; }
+.display-round-title { top: 370px; left: 370px; width: 550px; font-size: 40px; }
+
+.control-panel {
+    background-color: rgba(0,0,0,0.1);
+    padding: 20px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 40px;
+    width: 90%;
+    max-width: 900px;
+}
+
+.control-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.control-section h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #000;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+.control-panel label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #000;
+}
+
+.control-panel input[type="text"],
+.control-panel input[type="number"] {
+    width: calc(100% - 12px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+.control-panel input[type="number"] {
+    text-align: center;
+}
+
+.score-inputs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.score-inputs div {
+    display: flex;
+    flex-direction: column;
+}
+
+.round-title-section,
+.reset-section,
+.status-section { 
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.action-button { 
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+.reset-button { background-color: #E74C3C; }
+.reset-button:hover { background-color: #C0392B; }
+
+#statusMessage {
+    margin-top: 10px;
+    font-style: italic;
+    color: #555;
+}
+
+.score-group {
+    margin-bottom: 15px;
+}
+.score-group label {
+    font-size: 0.8em;
+    text-align: center;
+    margin-bottom: 2px;
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Papan Skor (Real-time Admin)</title>
+    <style>
+        /* ... CSS Anda tetap sama ... */
+        /* ... (Saya akan singkat CSS di sini agar tidak terlalu panjang, asumsikan sama) ... */
+        body { background-color: #00FF00; margin: 0; padding: 20px; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .scoreboard-container { position: relative; width: 1920px; height: 500px; background-image: url('images/uploads/scoreboard_banner.png'); background-size: contain; background-repeat: no-repeat; margin-bottom: 30px; }
+        .display-text { position: absolute; font-family: 'Arial Black', Gadget, sans-serif; color: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .display-team-a-name { top: 141px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
+        .display-team-b-name { top: 269px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
+        .display-team-a-round-score { top: 140px; left: 1076px; width: 80px; font-size: 60px; }
+        .display-team-b-round-score { top: 262px; left: 1077px; width: 80px; font-size: 60px; }
+        .display-score { font-size: 70px; width: 130px; }
+        .display-team-a-score1 { top: 133px; left: 1162px; }
+        .display-team-a-score2 { top: 133px; left: 1304px; }
+        .display-team-a-score3 { top: 133px; left: 1441px; }
+        .display-team-b-score1 { top: 256px; left: 1162px; }
+        .display-team-b-score2 { top: 256px; left: 1305px; }
+        .display-team-b-score3 { top: 257px; left: 1443px; }
+        .display-round-title { top: 370px; left: 370px; width: 550px; font-size: 40px; }
+        .control-panel { background-color: rgba(0,0,0,0.1); padding: 20px; border-radius: 8px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 40px; width: 90%; max-width: 900px; }
+        .control-section { display: flex; flex-direction: column; gap: 10px; }
+        .control-section h3 { margin-top: 0; margin-bottom: 5px; color: #000; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .control-panel label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; color: #000; }
+        .control-panel input[type="text"], .control-panel input[type="number"] { width: calc(100% - 12px); padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
+        .control-panel input[type="number"] { text-align: center; }
+        .score-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .score-inputs div { display: flex; flex-direction: column; }
+        .round-title-section, .reset-section, .status-section { grid-column: 1 / -1; text-align: center; }
+        .action-button { color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; transition: background-color 0.3s; margin: 5px; }
+        .reset-button { background-color: #E74C3C; } .reset-button:hover { background-color: #C0392B; }
+        #statusMessage { margin-top: 10px; font-style: italic; color: #555; }
+        .score-group label { font-size: 0.8em; text-align: center; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <!-- ... HTML Struktur banner dan panel kontrol tetap sama ... -->
+    <div class="scoreboard-container">
+        <div id="displayTeamAName" class="display-text display-team-a-name">TEAM A</div>
+        <div id="displayTeamARoundScore" class="display-text display-team-a-round-score">0</div>
+        <div id="displayTeamAScore1" class="display-text display-score display-team-a-score1">0</div>
+        <div id="displayTeamAScore2" class="display-text display-score display-team-a-score2">0</div>
+        <div id="displayTeamAScore3" class="display-text display-score display-team-a-score3">0</div>
+
+        <div id="displayTeamBName" class="display-text display-team-b-name">TEAM B</div>
+        <div id="displayTeamBRoundScore" class="display-text display-team-b-round-score">0</div>
+        <div id="displayTeamBScore1" class="display-text display-score display-team-b-score1">0</div>
+        <div id="displayTeamBScore2" class="display-text display-score display-team-b-score2">0</div>
+        <div id="displayTeamBScore3" class="display-text display-score display-team-b-score3">0</div>
+
+        <div id="displayRoundTitle" class="display-text display-round-title">ROUND TITLE</div>
+    </div>
+
+    <div class="control-panel">
+        <!-- Kontrol Tim A -->
+        <div class="control-section">
+            <h3>TEAM A</h3>
+            <label for="teamANameInput">Nama Team A:</label>
+            <input type="text" id="teamANameInput">
+
+            <div class="score-inputs">
+                <div> <label for="teamAScore1Input">SCORE 1 TEAM A</label> <input type="number" id="teamAScore1Input" min="0"> </div>
+                <div> <label for="teamAScore2Input">SCORE 2 TEAM A</label> <input type="number" id="teamAScore2Input" min="0"> </div>
+                <div> <label for="teamAScore3Input">SCORE 3 TEAM A</label> <input type="number" id="teamAScore3Input" min="0"> </div>
+            </div>
+            <label for="teamARoundScoreInput">ROUND SCORE A:</label> <input type="number" id="teamARoundScoreInput" min="0">
+        </div>
+
+        <!-- Kontrol Tim B -->
+        <div class="control-section">
+            <h3>TEAM B</h3>
+            <label for="teamBNameInput">Nama Team B:</label>
+            <input type="text" id="teamBNameInput">
+            <div class="score-inputs">
+                <div> <label for="teamBScore1Input">SCORE 1 TEAM B</label> <input type="number" id="teamBScore1Input" min="0"> </div>
+                <div> <label for="teamBScore2Input">SCORE 2 TEAM B</label> <input type="number" id="teamBScore2Input" min="0"> </div>
+                <div> <label for="teamBScore3Input">SCORE 3 TEAM B</label> <input type="number" id="teamBScore3Input" min="0"> </div>
+            </div>
+            <label for="teamBRoundScoreInput">ROUND SCORE B:</label> <input type="number" id="teamBRoundScoreInput" min="0">
+        </div>
+        <div class="control-section round-title-section"> <h3>PENGATURAN UMUM</h3> <label for="roundTitleInput">Round Title:</label> <input type="text" id="roundTitleInput"> </div>
+        <div class="control-section reset-section"> <button id="resetScoreButton" class="action-button reset-button">RESET SCORE KE DEFAULT</button> </div>
+        <div class="control-section status-section"> <p id="statusMessage">Menghubungkan ke server...</p> </div>
+    </div>
+
+    <script>
+        // Ganti localhost dengan IP address server jika diakses dari komputer lain di jaringan yang sama
+        const WS_URL = `https://3000-firebase-scoreboard-1747902523050.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev/api/scoreboard`; // Menggunakan hostname saat ini
+        let socket;
+
+        const scoreboardFields = [
+            { id: 'teamANameInput', displayId: 'displayTeamAName', defaultValue: 'TEAM A', type: 'text' },
+            { id: 'teamBNameInput', displayId: 'displayTeamBName', defaultValue: 'TEAM B', type: 'text' },
+            { id: 'roundTitleInput', displayId: 'displayRoundTitle', defaultValue: 'ROUND TITLE', type: 'text' },
+            { id: 'teamAScore1Input', displayId: 'displayTeamAScore1', defaultValue: 0, type: 'number' },
+            { id: 'teamAScore2Input', displayId: 'displayTeamAScore2', defaultValue: 0, type: 'number' },
+            { id: 'teamAScore3Input', displayId: 'displayTeamAScore3', defaultValue: 0, type: 'number' },
+            { id: 'teamARoundScoreInput', displayId: 'displayTeamARoundScore', defaultValue: 0, type: 'number' },
+            { id: 'teamBScore1Input', displayId: 'displayTeamBScore1', defaultValue: 0, type: 'number' },
+            { id: 'teamBScore2Input', displayId: 'displayTeamBScore2', defaultValue: 0, type: 'number' },
+            { id: 'teamBScore3Input', displayId: 'displayTeamBScore3', defaultValue: 0, type: 'number' },
+            { id: 'teamBRoundScoreInput', displayId: 'displayTeamBRoundScore', defaultValue: 0, type: 'number' },
+        ];
+        const statusMessageEl = document.getElementById('statusMessage');
+
+        function updateDisplay(inputId, displayId) {
+            const inputElement = document.getElementById(inputId);
+            const displayElement = document.getElementById(displayId);
+            if (inputElement && displayElement) {
+                displayElement.textContent = inputElement.value;
+            }
+        }
+
+        function populateInputsAndDisplay(data) {
+            scoreboardFields.forEach(field => {
+                const inputElement = document.getElementById(field.id);
+                if (inputElement && data.hasOwnProperty(field.id)) {
+                    inputElement.value = data[field.id];
+                    updateDisplay(field.id, field.displayId);
+                } else if (inputElement) {
+                    inputElement.value = field.defaultValue;
+                    updateDisplay(field.id, field.displayId);
+                }
+            });
+        }
+
+        let updateTimeout;
+        function sendScoreboardUpdateToServer() {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    const currentData = {};
+                    scoreboardFields.forEach(field => {
+                        const inputElement = document.getElementById(field.id);
+                        currentData[field.id] = (inputElement.type === 'number') 
+                                                ? parseFloat(inputElement.value) || 0 
+                                                : inputElement.value;
+                    });
+                    socket.send(JSON.stringify({ type: 'updateScoreboard', payload: currentData }));
+                    statusMessageEl.textContent = 'Perubahan dikirim ke server.';
+                    setTimeout(() => statusMessageEl.textContent = 'Terhubung.', 2000);
+                } else {
+                    statusMessageEl.textContent = 'Koneksi WebSocket tidak terbuka. Coba lagi nanti.';
+                }
+            }, 500); // Debounce
+        }
+
+        function connectWebSocket() {
+            socket = new WebSocket(WS_URL);
+
+            socket.onopen = () => {
+                statusMessageEl.textContent = 'Terhubung ke server WebSocket. Memuat data...';
+                // Server akan mengirim initialData otomatis setelah koneksi
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'initialData' || message.type === 'scoreboardUpdate') {
+                        populateInputsAndDisplay(message.payload);
+                        if (message.type === 'initialData') {
+                             statusMessageEl.textContent = 'Data awal berhasil dimuat.';
+                        } else {
+                            // Untuk panel kontrol, tidak perlu pesan khusus saat menerima update
+                            // karena ia yang memicu update, atau update dari admin lain.
+                            // Cukup pastikan UI sinkron.
+                            console.log("Scoreboard updated by server or another admin.");
+                        }
+                        setTimeout(() => statusMessageEl.textContent = 'Terhubung.', 2000);
+                    }
+                } catch (e) {
+                    console.error('Error parsing message from server:', e);
+                }
+            };
+
+            socket.onclose = () => {
+                statusMessageEl.textContent = 'Koneksi WebSocket terputus. Mencoba menghubungkan kembali dalam 5 detik...';
+                setTimeout(connectWebSocket, 5000); // Coba hubungkan kembali
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket Error:', error);
+                statusMessageEl.textContent = 'Error koneksi WebSocket.';
+                // onclose akan dipanggil setelah error, jadi reconnect akan ditangani di sana
+            };
+        }
+
+        // Inisialisasi event listener untuk input fields
+        scoreboardFields.forEach(field => {
+            const inputElement = document.getElementById(field.id);
+            if (inputElement) {
+                inputElement.addEventListener('input', () => {
+                    updateDisplay(field.id, field.displayId); // Update UI lokal dulu
+                    sendScoreboardUpdateToServer();      // Kirim pembaruan ke server
+                });
+            }
+        });
+
+        // Tombol Reset
+        document.getElementById('resetScoreButton').addEventListener('click', () => {
+            if (confirm('Apakah Anda yakin ingin mereset skor ke nilai default? Ini akan mengirim data default ke server.')) {
+                const defaultData = {};
+                scoreboardFields.forEach(field => {
+                    defaultData[field.id] = field.defaultValue;
+                });
+                populateInputsAndDisplay(defaultData); // Update UI lokal
+                sendScoreboardUpdateToServer(); // Kirim data default ini ke server
+                statusMessageEl.textContent = 'Data default dikirim ke server.';
+            }
+        });
+        
+        // Mulai koneksi WebSocket saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', connectWebSocket);
+
+    </script>
+</body>
+</html>
