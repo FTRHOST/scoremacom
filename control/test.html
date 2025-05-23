@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Papan Skor (Real-time Admin)</title>
+    <style>
+        body {
+            background-color: #00FF00; /* Green screen */
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        .scoreboard-container {
+            position: relative;
+            width: 1920px; /* SESUAIKAN DENGAN GAMBAR ANDA */
+            height: 500px;  /* SESUAIKAN DENGAN GAMBAR ANDA */
+            background-image: url('images/uploads/scoreboard_banner.png'); /* PASTIKAN PATH BENAR */
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-bottom: 30px;
+        }
+        .display-text {
+            position: absolute;
+            font-family: 'Arial Black', Gadget, sans-serif;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* Contoh posisi (SESUAIKAN DENGAN LAYOUT BANNER ANDA) */
+        .display-team-a-name { top: 141px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
+        .display-team-b-name { top: 269px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
+        .display-team-a-round-score { top: 140px; left: 1076px; width: 80px; font-size: 60px; }
+        .display-team-b-round-score { top: 262px; left: 1077px; width: 80px; font-size: 60px; }
+        .display-score { font-size: 70px; width: 130px; }
+        .display-team-a-score1 { top: 133px; left: 1162px; }
+        .display-team-a-score2 { top: 133px; left: 1304px; }
+        .display-team-a-score3 { top: 133px; left: 1441px; }
+        .display-team-b-score1 { top: 256px; left: 1162px; }
+        .display-team-b-score2 { top: 256px; left: 1305px; }
+        .display-team-b-score3 { top: 257px; left: 1443px; }
+        .display-round-title { top: 370px; left: 370px; width: 550px; font-size: 40px; }
+
+        .control-panel {
+            background-color: rgba(230,230,230,0.9); /* Warna lebih netral agar teks mudah dibaca */
+            padding: 20px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 40px;
+            width: 90%;
+            max-width: 900px;
+            color: #000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #007bff; /* Aksen biru */
+            padding-bottom: 8px;
+            color: #003366; /* Biru gelap */
+        }
+        .control-panel label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .control-panel input[type="text"],
+        .control-panel input[type="number"] { /* Hapus select dari sini jika tidak ada lagi */
+            width: 100%; /* Buat full width di dalam parentnya */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        .control-panel input[type="number"] {
+            text-align: center;
+        }
+        .score-inputs { /* Tetap grid jika struktur HTML .score-inputs masih ada */
+            display: flex; /* Ubah ke flex untuk .score-control-group */
+            flex-direction: column;
+            gap: 15px; /* Jarak antar score-control-group */
+        }
+
+        .score-control-group {
+            margin-bottom: 5px;
+        }
+        .score-control-group label {
+            display: block;
+            text-align: center;
+            margin-bottom: 4px;
+            font-size: 0.85em;
+            font-weight: normal;
+            color: #555;
+        }
+        .score-adjust-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Tombol di ujung, input di tengah */
+        }
+        .score-adjust-buttons input[type="number"] {
+            width: 60px;
+            text-align: center;
+            margin: 0 5px;
+            -moz-appearance: textfield;
+            font-weight: bold;
+        }
+        .score-adjust-buttons input[type="number"]::-webkit-outer-spin-button,
+        .score-adjust-buttons input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .score-btn {
+            width: 35px;
+            height: 35px;
+            font-size: 1.5em; /* Perbesar font tombol */
+            font-weight: bold;
+            border: 1px solid #bbb;
+            background-color: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+            border-radius: 50%; /* Buat tombol bulat */
+            line-height: 1;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .score-btn.plus { color: #28a745; /* Hijau */ border-color: #28a745; }
+        .score-btn.minus { color: #dc3545; /* Merah */ border-color: #dc3545; }
+        .score-btn:hover { opacity: 0.8; }
+
+        .round-title-section,
+        .actions-section,
+        .status-section {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+        .actions-section {
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .action-button {
+            color: white;
+            padding: 12px 24px; /* Perbesar tombol */
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin: 5px 10px;
+            min-width: 150px; /* Lebar minimal tombol */
+        }
+        .action-button:hover { transform: translateY(-1px); }
+        .reset-button { background-color: #dc3545; } /* Merah bootstrap */
+        .reset-button:hover { background-color: #c82333; }
+        #switchTeamsButton { background-color: #ffc107; color:#333; } /* Kuning bootstrap */
+        #switchTeamsButton:hover { background-color: #e0a800; }
+
+        #statusMessage {
+            margin-top: 15px;
+            font-style: italic;
+            color: #555;
+            min-height: 1.2em;
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Area Tampilan Papan Skor (Banner) -->
+    <div class="scoreboard-container">
+        <div id="displayTeamAName" class="display-text display-team-a-name">TEAM A</div>
+        <div id="displayTeamARoundScore" class="display-text display-team-a-round-score">0</div>
+        <div id="displayTeamAScore1" class="display-text display-score display-team-a-score1">0</div>
+        <div id="displayTeamAScore2" class="display-text display-score display-team-a-score2">0</div>
+        <div id="displayTeamAScore3" class="display-text display-score display-team-a-score3">0</div>
+
+        <div id="displayTeamBName" class="display-text display-team-b-name">TEAM B</div>
+        <div id="displayTeamBRoundScore" class="display-text display-team-b-round-score">0</div>
+        <div id="displayTeamBScore1" class="display-text display-score display-team-b-score1">0</div>
+        <div id="displayTeamBScore2" class="display-text display-score display-team-b-score2">0</div>
+        <div id="displayTeamBScore3" class="display-text display-score display-team-b-score3">0</div>
+
+        <div id="displayRoundTitle" class="display-text display-round-title">ROUND TITLE</div>
+    </div>
+
+    <!-- Panel Kontrol -->
+    <div class="control-panel">
+        <div class="control-section">
+            <h3>TEAM A</h3>
+            <label for="teamANameInput">Nama Team A:</label>
+            <input type="text" id="teamANameInput" value="TEAM A">
+
+            <div class="score-inputs">
+                <div class="score-control-group">
+                    <label for="teamAScore1Input">SCORE 1 TEAM A</label>
+                    <div class="score-adjust-buttons">
+                        <button class="score-btn minus" data-target="teamAScore1Input" data-team="A" data-score-index="1">-</button>
+                        <input type="number" id="teamAScore1Input" value="0" min="0" max="25" readonly>
+                        <button class="score-btn plus" data-target="teamAScore1Input" data-team="A" data-score-index="1">+</button>
+                    </div>
+                </div>
+                <div class="score-control-group">
+                    <label for="teamAScore2Input">SCORE 2 TEAM A</label>
+                    <div class="score-adjust-buttons">
+                        <button class="score-btn minus" data-target="teamAScore2Input" data-team="A" data-score-index="2">-</button>
+                        <input type="number" id="teamAScore2Input" value="0" min="0" max="25" readonly>
+                        <button class="score-btn plus" data-target="teamAScore2Input" data-team="A" data-score-index="2">+</button>
+                    </div>
+                </div>
+                <div class="score-control-group">
+                    <label for="teamAScore3Input">SCORE 3 TEAM A</label>
+                    <div class="score-adjust-buttons">
+                        <button class="score-btn minus" data-target="teamAScore3Input" data-team="A" data-score-index="3">-</button>
+                        <input type="number" id="teamAScore3Input" value="0" min="0" max="25" readonly>
+                        <button class="score-btn plus" data-target="teamAScore3Input" data-team="A" data-score-index="3">+</button>
+                    </div>
+                </div>
+            </div>
+            <label for="teamARoundScoreInput">ROUND SCORE A:</label>
+            <input type="number" id="teamARoundScoreInput" value="0" min="0" readonly>
+        </div>
+
+        <div class="control-section">
+            <h3>TEAM B</h3>
+            <label for="teamBNameInput">Nama Team B:</label>
+            <input type="text" id="teamBNameInput" value="TEAM B">
+            <div class="score-inputs">
+                 <div class="score-control-group">
+                    <label for="teamBScore1Input">SCORE 1 TEAM B</label>
+                    <div class="score-adjust-buttons">
+                        <button class="score-btn minus" data-target="teamBScore1Input" data-team="B" data-score-index="1">-</button>
+                        <input type="number" id="teamBScore1Input" value="0" min="0" max="25" readonly>
+                        <button class="score-btn plus" data-target="teamBScore1Input" data-team="B" data-score-index="1">+</button>
+                    </div>
+                </div>
+                <div class="score-control-group">
+                    <label for="teamBScore2Input">SCORE 2 TEAM B</label>
+                    <div class="score-adjust-buttons">
+                        <button class="score-btn minus" data-target="teamBScore2Input" data-team="B" data-score-index="2">-</button>
+                        <input type="number" id="teamBScore2Input" value="0" min="0" max="25" readonly>
+                        <button class="score-btn plus" data-target="teamBScore2Input" data-team="B" data-score-index="2">+</button>
+                    </div>
+                </div>
+                <div class="score-control-group">
+                    <label for="teamBScore3Input">SCORE 3 TEAM B</label>
+                    <div class="score-adjust-buttons">
+                        <button class="score-btn minus" data-target="teamBScore3Input" data-team="B" data-score-index="3">-</button>
+                        <input type="number" id="teamBScore3Input" value="0" min="0" max="25" readonly>
+                        <button class="score-btn plus" data-target="teamBScore3Input" data-team="B" data-score-index="3">+</button>
+                    </div>
+                </div>
+            </div>
+            <label for="teamBRoundScoreInput">ROUND SCORE B:</label>
+            <input type="number" id="teamBRoundScoreInput" value="0" min="0" readonly>
+        </div>
+
+        <div class="control-section round-title-section">
+            <h3>PENGATURAN UMUM</h3>
+            <label for="roundTitleInput">Round Title:</label>
+            <input type="text" id="roundTitleInput" value="ROUND TITLE">
+        </div>
+
+        <div class="control-section actions-section">
+            <h3>AKSI</h3>
+            <button id="switchTeamsButton" class="action-button">SWITCH TEAMS</button>
+            <button id="resetScoreButton" class="action-button reset-button">RESET SCORE</button>
+        </div>
+
+        <div class="control-section status-section">
+            <p id="statusMessage">Menghubungkan ke server...</p>
+        </div>
+    </div>
+
+<script>
+    // ----------------------------------------------------------------------------------
+    // GANTI URL INI DENGAN URL WEBSOCKET SERVER ANDA YANG BENAR!
+    // ----------------------------------------------------------------------------------
+    const WS_URL = 'wss://api.manubanyuputih.id:3020'; // PASTIKAN INI BENAR SESUAI SERVER ANDA
+
+    let socket;
+    let isReconnecting = false;
+    let reconnectInterval = 5000;
+    const maxReconnectInterval = 30000;
+
+    const scoreboardFields = [
+        { id: 'teamANameInput', displayId: 'displayTeamAName', dataKeyInScoreboard: 'teamANameInput', defaultValue: 'TEAM A', type: 'text' },
+        { id: 'teamBNameInput', displayId: 'displayTeamBName', dataKeyInScoreboard: 'teamBNameInput', defaultValue: 'TEAM B', type: 'text' },
+        { id: 'roundTitleInput', displayId: 'displayRoundTitle', dataKeyInScoreboard: 'roundTitleInput', defaultValue: 'ROUND TITLE', type: 'text' },
+        { id: 'teamAScore1Input', displayId: 'displayTeamAScore1', dataKeyInScoreboard: 'teamAScore1Input', defaultValue: 0, type: 'number' },
+        { id: 'teamAScore2Input', displayId: 'displayTeamAScore2', dataKeyInScoreboard: 'teamAScore2Input', defaultValue: 0, type: 'number' },
+        { id: 'teamAScore3Input', displayId: 'displayTeamAScore3', dataKeyInScoreboard: 'teamAScore3Input', defaultValue: 0, type: 'number' },
+        { id: 'teamARoundScoreInput', displayId: 'displayTeamARoundScore', dataKeyInScoreboard: 'teamARoundScoreInput', defaultValue: 0, type: 'number' },
+        { id: 'teamBScore1Input', displayId: 'displayTeamBScore1', dataKeyInScoreboard: 'teamBScore1Input', defaultValue: 0, type: 'number' },
+        { id: 'teamBScore2Input', displayId: 'displayTeamBScore2', dataKeyInScoreboard: 'teamBScore2Input', defaultValue: 0, type: 'number' },
+        { id: 'teamBScore3Input', displayId: 'displayTeamBScore3', dataKeyInScoreboard: 'teamBScore3Input', defaultValue: 0, type: 'number' },
+        { id: 'teamBRoundScoreInput', displayId: 'displayTeamBRoundScore', dataKeyInScoreboard: 'teamBRoundScoreInput', defaultValue: 0, type: 'number' },
+    ];
+    const statusMessageEl = document.getElementById('statusMessage');
+
+    function updateDisplay(fieldId, displayId) {
+        const inputElement = document.getElementById(fieldId);
+        const displayElement = document.getElementById(displayId);
+        if (inputElement && displayElement) {
+            displayElement.textContent = inputElement.value;
+        }
+    }
+
+    function populateInputsAndDisplay(scoreboardData) {
+        scoreboardFields.forEach(field => {
+            const inputElement = document.getElementById(field.id);
+            const dataKey = field.dataKeyInScoreboard;
+            if (!inputElement) return;
+            if (scoreboardData && scoreboardData.hasOwnProperty(dataKey)) {
+                inputElement.value = scoreboardData[dataKey];
+            } else {
+                inputElement.value = field.defaultValue;
+            }
+            updateDisplay(field.id, field.displayId);
+        });
+    }
+
+    let updateTimeout;
+    function sendScoreboardUpdateToServer() {
+        clearTimeout(updateTimeout);
+        updateTimeout = setTimeout(() => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const currentScoreboardData = {};
+                scoreboardFields.forEach(field => {
+                    const inputElement = document.getElementById(field.id);
+                    const dataKey = field.dataKeyInScoreboard;
+                    if (inputElement) {
+                        currentScoreboardData[dataKey] = (inputElement.type === 'number')
+                            ? parseFloat(inputElement.value) || 0
+                            : inputElement.value;
+                    }
+                });
+                try {
+                    socket.send(JSON.stringify({ type: 'updateScoreboard', payload: currentScoreboardData }));
+                    if (statusMessageEl) statusMessageEl.textContent = 'Perubahan dikirim.';
+                } catch (error) {
+                    console.error("Error sending WebSocket message:", error);
+                    if (statusMessageEl) statusMessageEl.textContent = 'Gagal mengirim.';
+                }
+            } else {
+                if (statusMessageEl) statusMessageEl.textContent = 'Koneksi terputus. Perubahan tidak terkirim.';
+                console.warn("Attempted to send data, but WebSocket is not open. State:", socket?.readyState);
+            }
+        }, 500);
+    }
+
+    function handleChangeScore(targetInputId, team, amount) {
+        const scoreInput = document.getElementById(targetInputId);
+        if (!scoreInput) return;
+        let currentValue = parseInt(scoreInput.value) || 0;
+        let newValue = currentValue + amount;
+        if (newValue < 0) newValue = 0;
+        if (newValue > 25) newValue = 25;
+        scoreInput.value = newValue;
+        const fieldDefinition = scoreboardFields.find(f => f.id === targetInputId);
+        if (fieldDefinition) updateDisplay(fieldDefinition.id, fieldDefinition.displayId);
+        if (newValue === 25) {
+            incrementRoundScoreAndReset(team, targetInputId);
+        }
+        sendScoreboardUpdateToServer(); // Kirim update setelah semua perubahan lokal
+    }
+
+    function incrementRoundScoreAndReset(team, scoreInputIdToReset) {
+        const roundScoreInputId = (team === 'A') ? 'teamARoundScoreInput' : 'teamBRoundScoreInput';
+        const roundScoreInput = document.getElementById(roundScoreInputId);
+        const scoreInputToResetEl = document.getElementById(scoreInputIdToReset);
+
+        if (roundScoreInput) {
+            roundScoreInput.value = (parseInt(roundScoreInput.value) || 0) + 1;
+            const roundFieldDef = scoreboardFields.find(f => f.id === roundScoreInputId);
+            if (roundFieldDef) updateDisplay(roundFieldDef.id, roundFieldDef.displayId);
+        }
+        if (scoreInputToResetEl) {
+            scoreInputToResetEl.value = 0;
+            const mainScoreFieldDef = scoreboardFields.find(f => f.id === scoreInputIdToReset);
+            if (mainScoreFieldDef) updateDisplay(mainScoreFieldDef.id, mainScoreFieldDef.displayId);
+        }
+        // sendScoreboardUpdateToServer() sudah dipanggil di akhir handleChangeScore
+    }
+
+    function connectWebSocket() {
+        if (isReconnecting || (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING))) { return; }
+        isReconnecting = true;
+        if (statusMessageEl) statusMessageEl.textContent = 'Menghubungkan...';
+        console.log(`Attempting to connect to WebSocket at ${WS_URL}`);
+        if (socket) {
+            socket.onopen = null; socket.onmessage = null; socket.onclose = null; socket.onerror = null;
+            if (socket.readyState !== WebSocket.CLOSED) { try { socket.close(1000, "Client initiated reconnect"); } catch (e) { console.error("Error closing previous socket:", e); } }
+        }
+        try { socket = new WebSocket(WS_URL); }
+        catch (e) {
+            console.error("Error creating WebSocket:", e); if (statusMessageEl) statusMessageEl.textContent = "Gagal membuat koneksi. Periksa URL.";
+            isReconnecting = false; setTimeout(() => { if (!isReconnecting) connectWebSocket(); }, reconnectInterval); return;
+        }
+        socket.onopen = () => {
+            if (statusMessageEl) statusMessageEl.textContent = 'Terhubung. Memuat data...';
+            console.log('WebSocket connection established.');
+            isReconnecting = false; reconnectInterval = 5000;
+        };
+        socket.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                console.log("Message from server:", message);
+                // Sesuaikan tipe pesan dengan implementasi server Anda
+                if (message.type === 'initialData' || message.type === 'initialSetup' || message.type === 'scoreboardUpdate') {
+                    const dataToPopulate = message.payload.scoreboard || message.payload; // Ambil data scoreboard
+                    populateInputsAndDisplay(dataToPopulate);
+                    if (message.type === 'initialData' || message.type === 'initialSetup') {
+                         if (statusMessageEl) statusMessageEl.textContent = 'Data awal dimuat.';
+                    } else {
+                         if (statusMessageEl) statusMessageEl.textContent = 'Papan skor diperbarui.';
+                    }
+                }
+                setTimeout(() => { if (socket && socket.readyState === WebSocket.OPEN && statusMessageEl) { statusMessageEl.textContent = 'Terhubung.'; } }, 2000);
+            } catch (e) { console.error('Error parsing message from server:', e, "Raw data:", event.data); if (statusMessageEl) statusMessageEl.textContent = 'Error data server.'; }
+        };
+        socket.onclose = (event) => {
+            console.warn(`WebSocket closed. Code: ${event.code}, Reason: "${event.reason || 'N/A'}", Clean: ${event.wasClean}`);
+            isReconnecting = false;
+            if (!navigator.onLine) {
+                if (statusMessageEl) statusMessageEl.textContent = "Internet terputus. Coba lagi saat online.";
+                const onlineHandler = () => { window.removeEventListener('online', onlineHandler); if (statusMessageEl) statusMessageEl.textContent = "Online. Menghubungkan..."; reconnectInterval = 5000; if (!isReconnecting) connectWebSocket(); };
+                window.addEventListener('online', onlineHandler); return;
+            }
+            let closeReasonText = `Koneksi terputus (Code: ${event.code || 'N/A'})`;
+            if(event.code === 1006) closeReasonText = `Koneksi terputus tiba-tiba (1006)`;
+            if (statusMessageEl) statusMessageEl.textContent = `${closeReasonText}. Mencoba lagi dalam ${reconnectInterval / 1000}d...`;
+            setTimeout(() => { if (!isReconnecting) connectWebSocket(); }, reconnectInterval);
+            reconnectInterval = Math.min(reconnectInterval * 1.5, maxReconnectInterval);
+        };
+        socket.onerror = (error) => {
+            console.error('WebSocket Error event:', error);
+            if (statusMessageEl) statusMessageEl.textContent = 'Error koneksi WebSocket.';
+        };
+    }
+
+    // Event listeners untuk tombol skor (+ / -)
+    document.querySelectorAll('.score-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetInputId = button.dataset.target;
+            const team = button.dataset.team;
+            const amount = button.classList.contains('plus') ? 1 : -1;
+            handleChangeScore(targetInputId, team, amount);
+        });
+    });
+
+    // Event listeners untuk input nama dan judul (jika ingin update saat diketik)
+    ['teamANameInput', 'teamBNameInput', 'roundTitleInput'].forEach(id => {
+        const inputElement = document.getElementById(id);
+        if (inputElement) {
+            inputElement.addEventListener('input', () => {
+                const fieldDef = scoreboardFields.find(f => f.id === id);
+                if (fieldDef) updateDisplay(fieldDef.id, fieldDef.displayId);
+                sendScoreboardUpdateToServer();
+            });
+        }
+    });
+
+    const resetButton = document.getElementById('resetScoreButton');
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            if (confirm('Reset semua skor dan nama ke default?')) {
+                const defaultData = {};
+                scoreboardFields.forEach(field => { defaultData[field.dataKeyInScoreboard] = field.defaultValue; });
+                populateInputsAndDisplay(defaultData);
+                sendScoreboardUpdateToServer();
+                if (statusMessageEl) statusMessageEl.textContent = 'Data default dikirim.';
+            }
+        });
+    }
+
+    const switchTeamsButton = document.getElementById('switchTeamsButton');
+    if (switchTeamsButton) {
+        switchTeamsButton.addEventListener('click', () => {
+            if (!confirm('Tukar data Tim A dan Tim B?')) { return; }
+            const currentData = {};
+            scoreboardFields.forEach(field => {
+                const el = document.getElementById(field.id);
+                if(el) currentData[field.dataKeyInScoreboard] = (el.type === 'number') ? parseFloat(el.value) || 0 : el.value;
+            });
+            const newData = { ...currentData };
+            newData.teamANameInput = currentData.teamBNameInput;
+            newData.teamAScore1Input = currentData.teamBScore1Input;
+            newData.teamAScore2Input = currentData.teamBScore2Input;
+            newData.teamAScore3Input = currentData.teamBScore3Input;
+            newData.teamARoundScoreInput = currentData.teamBRoundScoreInput;
+            newData.teamBNameInput = currentData.teamANameInput;
+            newData.teamBScore1Input = currentData.teamAScore1Input;
+            newData.teamBScore2Input = currentData.teamAScore2Input;
+            newData.teamBScore3Input = currentData.teamAScore3Input;
+            newData.teamBRoundScoreInput = currentData.teamARoundScoreInput;
+            populateInputsAndDisplay(newData);
+            sendScoreboardUpdateToServer();
+            if (statusMessageEl) statusMessageEl.textContent = 'Tim ditukar.';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!window.WebSocket) {
+            if (statusMessageEl) statusMessageEl.textContent = "Browser tidak mendukung WebSocket!";
+            alert("Browser Anda tidak mendukung WebSocket."); return;
+        }
+        const initialDefaults = scoreboardFields.reduce((acc, f) => { acc[f.dataKeyInScoreboard] = f.defaultValue; return acc; }, {});
+        populateInputsAndDisplay(initialDefaults);
+        connectWebSocket();
+    });
+</script>
+</body>
+</html>
