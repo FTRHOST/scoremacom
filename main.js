@@ -1,4 +1,4 @@
-const WS_URL = 'https://3000-firebase-scoreboard-1747902523050.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev/api/scoreboard'; // URL backend server
+const WS_URL = 'https://api.manubanyuputih.id:3020'; // URL backend server
 
 let socket;
 

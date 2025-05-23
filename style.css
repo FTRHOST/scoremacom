@@ -31,6 +31,17 @@
     text-overflow: ellipsis;
 }
 
+.display-text-team {
+    position: absolute;
+    font-family: 'Arial Black', Gadget, sans-serif;
+    color: #072629;
+    /*text-shadow: 2px 2px 4px rgba(0,0,0,0.7);*/
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .display-team-a-name { top: 141px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
 .display-team-b-name { top: 269px; left: 369px; width: 690px; font-size: 49px; text-align: left;}
 .display-team-a-round-score { top: 140px; left: 1076px; width: 80px; font-size: 60px; }

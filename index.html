@@ -9,13 +9,13 @@
 <body>
 
     <div class="scoreboard-container">
-        <div id="displayTeamAName" class="display-text display-team-a-name">LOADING...</div>
+        <div id="displayTeamAName" class="display-text-team display-team-a-name">LOADING...</div>
         <div id="displayTeamARoundScore" class="display-text display-team-a-round-score">0</div>
         <div id="displayTeamAScore1" class="display-text display-score display-team-a-score1">0</div>
         <div id="displayTeamAScore2" class="display-text display-score display-team-a-score2">0</div>
         <div id="displayTeamAScore3" class="display-text display-score display-team-a-score3">0</div>
 
-        <div id="displayTeamBName" class="display-text display-team-b-name">LOADING...</div>
+        <div id="displayTeamBName" class="display-text-team display-team-b-name">LOADING...</div>
         <div id="displayTeamBRoundScore" class="display-text display-team-b-round-score">0</div>
         <div id="displayTeamBScore1" class="display-text display-score display-team-b-score1">0</div>
         <div id="displayTeamBScore2" class="display-text display-score display-team-b-score2">0</div>
@@ -27,7 +27,7 @@
 
 
     <script>
-        const WS_URL = 'https://3000-firebase-scoreboard-1747902523050.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev/api/scoreboard'; // URL backend server
+        const WS_URL = 'https://api.manubanyuputih.id:3020'; // URL backend server
         let socket;
         const displayElements = [ // Hanya ID display yang dibutuhkan di sini
             { displayId: 'displayTeamAName', dataKey: 'teamANameInput' },
